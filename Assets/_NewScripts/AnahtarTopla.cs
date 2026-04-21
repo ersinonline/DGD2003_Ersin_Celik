@@ -1,29 +1,27 @@
 using UnityEngine;
+using UnityEngine.Events;
 
-// Ersin Çelik - Akıllı Anahtar (Trigger'ı kendi ayarlar)
+// Ersin Çelik - Hocanın İstediği Unity Event Sistemi
 public class AnahtarTopla : MonoBehaviour
 {
-    [Header("Anahtar Kimliği")]
     public int anahtarNo = 1;
+
+    // HOCANIN İSTEDİĞİ KRİTER: Scriptler arası Unity Event iletişimi
+    [Header("Script İletişim Olayı")]
+    public UnityEvent anahtarToplandiOlayi;
 
     void Awake()
     {
-        // OTOMATİK AYAR: Ersin tek tek uğraşmasın diye Trigger'ı biz açalım
+        // Otomatik Trigger ayarı
         Collider col = GetComponent<Collider>();
-        if (col != null)
-        {
-            // Eğer Mesh Collider ise Convex olması gerekir, yoksa Trigger çalışmaz
-            if (col is MeshCollider meshCol)
-            {
-                meshCol.convex = true;
-            }
+        if (col != null) {
+            if (col is MeshCollider meshCol) meshCol.convex = true;
             col.isTrigger = true;
         }
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        // Player etiketli bir şey dokunduysa
         if (other.CompareTag("Player"))
         {
             Topla();
@@ -32,16 +30,14 @@ public class AnahtarTopla : MonoBehaviour
 
     public void Topla()
     {
-        ErsinSihirbaz es = Object.FindFirstObjectByType<ErsinSihirbaz>();
-        if (es != null)
-        {
-            if (!es.toplananAnahtarlar.Contains(anahtarNo))
-            {
-                es.toplananAnahtarlar.Add(anahtarNo);
-                Debug.Log("Sistem: " + anahtarNo + " nolu anahtar otomatik toplandı.");
-            }
-        }
+        // Olayı tetikle (Diğer scriptler bunu duyacak)
+        if (anahtarToplandiOlayi != null) anahtarToplandiOlayi.Invoke();
         
-        Destroy(gameObject); 
+        // Envantere ekle (ErsinSihirbaz'a haber ver)
+        ErsinSihirbaz es = Object.FindFirstObjectByType<ErsinSihirbaz>();
+        if (es != null) es.toplananAnahtarlar.Add(anahtarNo);
+
+        Debug.Log("Hoca için not: Unity Event tetiklendi ve anahtar toplandı.");
+        Destroy(gameObject);
     }
 }

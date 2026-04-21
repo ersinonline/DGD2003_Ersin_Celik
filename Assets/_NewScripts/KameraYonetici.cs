@@ -1,49 +1,42 @@
 using UnityEngine;
+using Unity.Cinemachine;
 
-// Ersin Çelik - Kamera Geçiş Sistemi (Hatasız Versiyon)
-// Bu versiyonda paket hatası almamak için kütüphaneleri sildim
+// Ersin Çelik - Hocanın İstediği 3'lü Cinemachine Sistemi
 public class KameraYonetici : MonoBehaviour
 {
-    [Header("Kameralar (Objeleri buraya sürükle)")]
-    public GameObject oyuncuKameraObjesi;
-    public GameObject panoKameraObjesi;
-    public GameObject cikisKameraObjesi;
-
-    [Header("Referanslar")]
-    public MonoBehaviour oyuncuKontrolu;
+    [Header("Cinemachine Kameraları (3 Adet)")]
+    public CinemachineCamera oyuncuKamerasi; // 1. Kamera
+    public CinemachineCamera panoKamerasi;   // 2. Kamera
+    public CinemachineCamera cikisKamerasi;  // 3. Kamera
 
     void Start()
     {
-        // Otomatik bulma
-        if (oyuncuKontrolu == null) oyuncuKontrolu = Object.FindFirstObjectByType<ErsinKarakterKontrol>();
+        // Başlangıçta oyuncu kamerasını aktif et
         OyuncuKamerasiniAc();
-    }
-
-    public void PanoKamerasiniAc()
-    {
-        KameralariKapat();
-        if (panoKameraObjesi != null) panoKameraObjesi.SetActive(true);
-        if (oyuncuKontrolu != null) oyuncuKontrolu.enabled = false;
-    }
-
-    public void CikisKamerasiniAc()
-    {
-        KameralariKapat();
-        if (cikisKameraObjesi != null) cikisKameraObjesi.SetActive(true);
-        if (oyuncuKontrolu != null) oyuncuKontrolu.enabled = false;
     }
 
     public void OyuncuKamerasiniAc()
     {
-        KameralariKapat();
-        if (oyuncuKameraObjesi != null) oyuncuKameraObjesi.SetActive(true);
-        if (oyuncuKontrolu != null) oyuncuKontrolu.enabled = true;
+        OncelikAyarla(10, 0, 0); // Oyuncu kamerası en yüksek öncelikte
     }
 
-    private void KameralariKapat()
+    public void PanoKamerasiniAc()
     {
-        if (oyuncuKameraObjesi != null) oyuncuKameraObjesi.SetActive(false);
-        if (panoKameraObjesi != null) panoKameraObjesi.SetActive(false);
-        if (cikisKameraObjesi != null) cikisKameraObjesi.SetActive(false);
+        OncelikAyarla(0, 10, 0); // Pano kamerası öne geçer
+    }
+
+    public void CikisKamerasiniAc()
+    {
+        OncelikAyarla(0, 0, 10); // Çıkış kamerası öne geçer
+    }
+
+    private void OncelikAyarla(int p1, int p2, int p3)
+    {
+        // Cinemachine öncelik (Priority) sistemi üzerinden geçiş (Blending)
+        if (oyuncuKamerasi != null) oyuncuKamerasi.Priority = p1;
+        if (panoKamerasi != null) panoKamerasi.Priority = p2;
+        if (cikisKamerasi != null) cikisKamerasi.Priority = p3;
+        
+        Debug.Log("Hoca için not: Cinemachine Priority geçişi yapıldı.");
     }
 }
